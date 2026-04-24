@@ -3,22 +3,22 @@
 #include <stdbool.h>
 
 typedef struct {
-    int puntos;
-    bool estaActivo;
-    char simbolo;
+    int puntos; //Puntos al eliminar un enemigo
+    bool estaActivo; //Vida del enemigo
+    char simbolo; // Representacion en pantalla
 } Enemigo;
 
 typedef struct Proyectil {
-    int posX, posY;
-    struct Proyectil* siguiente;
+    int posX, posY; //Coordenadas del proyectil
+    struct Proyectil* siguiente; //Siguiente proyectil en la lista
 } Proyectil;
 
 typedef struct {
-    Enemigo** horda;
-    int filas;
-    int columnas;
-    int navePos;
-    Proyectil* listaProyectiles; 
+    Enemigo** horda; //Matriz dinamica de los enemigos
+    int filas; // Filas de enmigos 
+    int columnas; //Columnas de enemigos
+    int navePos; //Posicion actual del jugador
+    Proyectil* listaProyectiles; //Puntero al iniciar disparo de proyectiles
 } Juego;
 
 void inicializarNivel(Juego* partida, int f, int c);
