@@ -87,3 +87,23 @@ void liberarMemoria(Juego* partida) {
     }
     printf("[CLEAN] Memoria liberada correctamente.\n");
 }
+
+void borrarProyectil(Proyectil** inicio, Proyectil* proyectilABorrar) {
+    if (*inicio == NULL || proyectilABorrar == NULL) return;
+
+    if (*inicio == proyectilABorrar) {
+        *inicio = proyectilABorrar->siguiente;
+        free(proyectilABorrar);
+        return;
+    }
+
+    Proyectil* actual = *inicio;
+    while (actual->siguiente != NULL && actual->siguiente != proyectilABorrar) {
+        actual = actual->siguiente;
+    }
+
+    if (actual->siguiente == proyectilABorrar) {
+        actual->siguiente = proyectilABorrar->siguiente;
+        free(proyectilABorrar);
+    }
+}
