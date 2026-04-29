@@ -107,3 +107,26 @@ void borrarProyectil(Proyectil** inicio, Proyectil* proyectilABorrar) {
         free(proyectilABorrar);
     }
 }
+void detectarColisiones(Juego* partida) {
+    Proyectil* aux = partida->listaProyectiles;
+    while (aux != NULL) {
+        Proyectil* proximo = aux->siguiente; 
+        bool huboImpacto = false;
+
+        if (aux->posY >= 0 && aux->posY < partida->filas &&
+            aux->posX >= 0 && aux->posX < partida->columnas) {
+            
+            if (partida->horda[aux->posY][aux->posX].estaActivo) {
+                partida->horda[aux->posY][aux->posX].estaActivo = false;
+                printf("[LOGICA] Enemigo eliminado en: %d, %d\n", aux->posX, aux->posY);
+                borrarProyectil(&partida->listaProyectiles, aux);
+                huboImpacto = true;
+            }
+        }
+
+        if (!huboImpacto && aux->posY < 0) {
+            borrarProyectil(&partida->listaProyectiles, aux);
+        }
+        aux = proximo;
+    }
+}
