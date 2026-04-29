@@ -56,7 +56,7 @@ void inicializarNivel(Juego* partida, int f, int c) {
             partida->horda[i][j].puntos = 10;
         }
     }
-    printf("[OK] Matriz de %dx%d creada dinamicamente.\n", f, c);
+    printf("Matriz de %dx%d creada dinamicamente.\n", f, c);
 }
 
 void dispararJugador(Proyectil** cabeza, int xActual, int yActual) {
@@ -69,7 +69,7 @@ void dispararJugador(Proyectil** cabeza, int xActual, int yActual) {
         nuevoProyectil->siguiente = *cabeza;
         *cabeza = nuevoProyectil;
         
-        printf("[EVENTO] Disparo generado en X:%d, Y:%d\n", xActual, yActual);
+        printf("Disparo generado en X:%d, Y:%d\n", xActual, yActual);
     }
 }
 
@@ -85,7 +85,7 @@ void liberarMemoria(Juego* partida) {
         actual = actual->siguiente;
         free(temporal);
     }
-    printf("[CLEAN] Memoria liberada correctamente.\n");
+    printf("Memoria liberada correctamente.\n");
 }
 
 void borrarProyectil(Proyectil** inicio, Proyectil* proyectilABorrar) {
@@ -118,7 +118,7 @@ void detectarColisiones(Juego* partida) {
             
             if (partida->horda[aux->posY][aux->posX].estaActivo) {
                 partida->horda[aux->posY][aux->posX].estaActivo = false;
-                printf("[LOGICA] Enemigo eliminado en: %d, %d\n", aux->posX, aux->posY);
+                printf("Enemigo eliminado en: %d, %d\n", aux->posX, aux->posY);
                 borrarProyectil(&partida->listaProyectiles, aux);
                 huboImpacto = true;
             }
