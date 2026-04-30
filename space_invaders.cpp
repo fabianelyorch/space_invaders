@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-
+#include <windows.h>
 typedef struct {
     int puntos; //Puntos al eliminar un enemigo
     bool estaActivo; //Vida del enemigo
@@ -24,6 +24,9 @@ typedef struct {
 void inicializarNivel(Juego* partida, int f, int c);
 void dispararJugador(Proyectil** cabeza, int xActual, int yActual);
 void liberarMemoria(Juego* partida);
+void borrarProyectil(Proyectil** inicio, Proyectil* proyectilABorrar);
+void detectarColisiones(Juego* partida);
+void actualizarJuego(Juego* partida);
 
 int main() {
     Juego miPartida;
@@ -130,3 +133,12 @@ void detectarColisiones(Juego* partida) {
         aux = proximo;
     }
 }
+void actualizarJuego(Juego* partida) {
+    Proyectil* p = partida->listaProyectiles;
+    while (p != NULL) {
+        p->posY--; // El proyectil sube
+        p = p->siguiente;
+    }
+    detectarColisiones(partida);
+}
+
