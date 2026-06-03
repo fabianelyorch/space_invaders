@@ -27,9 +27,9 @@ typedef struct{
     int velocidad;
 } configNivel;
 
-void inicializarNivel(Juego* partida, int f, int c);
+void inicializarNivel(Juego*, const char*, int);
 void graficos(int, int);
-configNivel cargarNivel(const char*);//lee los valores del archivo para cargar el nivel
+configNivel cargarNivel(const char*, int);//lee los valores del archivo para cargar el nivel
 void dispararJugador(Proyectil** cabeza, int xActual, int yActual); //crea el proyectil
 void liberarMemoria(Juego* partida);
 void borrarProyectil(Proyectil** inicio, Proyectil* proyectilABorrar);
@@ -54,34 +54,71 @@ int main() {
     //ocultar cursor
    CONSOLE_CURSOR_INFO info = {1, FALSE};
    SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);
-   configNivel config = cargarNivel("archivo.txt");
-   Juego miPartida;
-   inicializarNivel(&miPartida, config.filas, config.columnas);//agarra filas y las columnas que se leyeron del archivo
+   int NivelJuego = 1;
+    Juego miPartida;
+   printf("Que nivel desea jugar?");
+   scanf("%d",&NivelJuego);
+   configNivel config = cargarNivel("archivo.txt", NivelJuego);
+   inicializarNivel(&miPartida, "archivo.txt", NivelJuego);//agarra la informacion del archivo para inicializar el nivel
    dispararJugador(&miPartida.listaProyectiles, miPartida.navePos, 20);
    liberarMemoria(&miPartida);
 
 
 }
 
-void inicializarNivel(Juego* partida, int f, int c) {
-    partida->filas = f;
-    partida->columnas = c;
-    partida->navePos = c / 2;
+void inicializarNivel(Juego* partida, const char* archivo, int nivel) {
+    configNivel config = cargarNivel(archivo, nivel);
+    partida->filas = config.filas;
+    partida->columnas = config.columnas;
+    partida->navePos = config.columnas/2;
     partida->listaProyectiles = NULL;
 
-    partida->horda = (Enemigo**)malloc(f * sizeof(Enemigo*));
+    partida->horda = (Enemigo**)malloc(partida->filas * sizeof(Enemigo*));
     
-    for (int i = 0; i < f; i++) {
-        partida->horda[i] = (Enemigo*)malloc(c * sizeof(Enemigo));
+    for (int i = 0; i < partida->filas; i++) {
+        partida->horda[i] = (Enemigo*)malloc(partida->columnas * sizeof(Enemigo));
+    }
+    FILE* file = fopen("archivo.txt", "r");
         
-        for (int j = 0; j < c; j++) {
+        /*for (int j = 0; j < c; j++) {
             partida->horda[i][j].estaActivo = true;
             partida->horda[i][j].simbolo = 'W';
             partida->horda[i][j].puntos = 10;
+        }*/
+    char linea[50];
+    char buscarNivel[10];
+    sprintf(buscarNivel, "Nivel %d", nivel);
+    while (fgets(linea, sizeof(linea), file)) {
+        linea[strcspn(linea, "\n")] = 0;
+        linea[strcspn(linea, "\r")] = 0;
+        if (strcmp(linea, buscarNivel) == 0) break;
+    }
+    char saltoDeLinea[25];
+    fgets(saltoDeLinea, sizeof(saltoDeLinea), file);
+    fgets(saltoDeLinea, sizeof(saltoDeLinea), file);
+    fgets(saltoDeLinea, sizeof(saltoDeLinea), file);
+
+    for (int i = 0; i < partida->filas; i++) {
+        for (int j = 0; j < partida->columnas; j++) {
+            char c = fgetc(file);       
+            if (c == '\n' || c == '\r') {
+                j--;
+                continue;
+            }
+            if (c == 'W') {
+                partida->horda[i][j].estaActivo = true;
+                partida->horda[i][j].simbolo = 'W';
+            } else {
+                partida->horda[i][j].estaActivo = false;
+                partida->horda[i][j].simbolo = ' ';
+            }
+            partida->horda[i][j].puntos = 10 * nivel;
         }
     }
-    printf("Matriz de %dx%d creada dinamicamente.\n", f, c);
+    fclose(file);
+    printf("¡Nivel %d cargado exitosamente (%dx%d)!\n", nivel, partida->filas, partida->columnas);
 }
+
 
 void dispararJugador(Proyectil** cabeza, int xActual, int yActual) {
     Proyectil* nuevoProyectil = (Proyectil*)malloc(sizeof(Proyectil));
@@ -170,13 +207,27 @@ void graficos(int x, int y){
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord); // obtiene el control de la consola
 }
 
-configNivel cargarNivel(const char* archivo) {
+configNivel cargarNivel(const char* archivo, int nivel) {
     configNivel config = {5, 10, 3};  // valores default
     FILE* f = fopen(archivo, "r");
     
     if (f == NULL) {
-        printf("No se encontro el archivo, usando config default.\n"); //funcion que sirve para leer los valores del archivo y cargar el nivel
+        printf("No se encontro el archivo \n"); //funcion que sirve para leer los valores del archivo y cargar el nivel
         return config;
+    }
+    char linea[50];
+    char buscarNivel[10];
+    bool encontrado = false;
+    sprintf(buscarNivel, "Nivel %d", nivel);
+    while (fgets(linea, sizeof(linea), f)) {
+        linea[strcspn(linea, "\n")] = 0; 
+        linea[strcspn(linea, "\r")] = 0;
+
+        if (strcmp(linea, buscarNivel) == 0) {
+            printf("Cargando el nivel %d...\n", nivel);
+            encontrado = true;
+            break;
+        }
     }
     
     fscanf(f, "filas=%d\n", &config.filas);

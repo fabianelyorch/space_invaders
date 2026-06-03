@@ -1,0 +1,26 @@
+Nivel 1
+filas=3
+columnas=8
+velocidad=3
+WWWWWWWW
+W  W   W
+WWWWWWWW
+
+Nivel 2
+filas=5
+columnas=10
+velocidad=5
+WWWWWWWWWW
+W        W
+ W  WW  W 
+  W    W  
+   W  W   
+
+Nivel 3
+filas=4
+columnas=5
+velocidad=2
+WWWWW
+W W W
+ W W 
+WWWWW
