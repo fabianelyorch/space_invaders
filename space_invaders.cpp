@@ -35,6 +35,8 @@ void liberarMemoria(Juego* partida);
 void borrarProyectil(Proyectil** inicio, Proyectil* proyectilABorrar);
 void detectarColisiones(Juego* partida);
 void actualizarJuego(Juego* partida);
+void dibujarJuego(Juego*);
+void limpiarAnterior(Juego*, int);
 
 int main() {
     /*Juego miPartida;
@@ -55,15 +57,42 @@ int main() {
    CONSOLE_CURSOR_INFO info = {1, FALSE};
    SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);
    int NivelJuego = 1;
-    Juego miPartida;
+   Juego miPartida;
+
    printf("Que nivel desea jugar?");
    scanf("%d",&NivelJuego);
    configNivel config = cargarNivel("archivo.txt", NivelJuego);
    inicializarNivel(&miPartida, "archivo.txt", NivelJuego);//agarra la informacion del archivo para inicializar el nivel
-   dispararJugador(&miPartida.listaProyectiles, miPartida.navePos, 20);
+   int filaNave = 20;
+   bool juegoejecutado = true;
+   //empezamo con el bucle principal
+   while(juegoejecutado){
+    int naveAnterior = miPartida.navePos;
+    if (GetAsyncKeyState(VK_LEFT) & 0x8000){
+            if (miPartida.navePos > 0){ //mueve la nave a la izquierda
+                miPartida.navePos--;
+            }
+        }
+    if (GetAsyncKeyState(VK_RIGHT) & 0x8000){
+        if (miPartida.navePos < config.columnas-1){//mueve la nave a la drcha
+            miPartida.navePos++;
+        }
+    }
+    if (GetAsyncKeyState(VK_SPACE) & 0x8000){
+        dispararJugador(&miPartida.listaProyectiles, miPartida.navePos, filaNave - 1);//la nav dipara
+    }
+    if (GetAsyncKeyState(VK_ESCAPE) & 0x8000){
+        juegoejecutado = false;//al dl jugo
+    }
+    actualizarJuego(&miPartida);
+    limpiarAnterior(&miPartida, naveAnterior);
+    dibujarJuego(&miPartida);
+   }
+   system("cls");
+   printf("Game over");
    liberarMemoria(&miPartida);
 
-
+   return 0;
 }
 
 void inicializarNivel(Juego* partida, const char* archivo, int nivel) {
@@ -207,11 +236,11 @@ void graficos(int x, int y){
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord); // obtiene el control de la consola
 }
 
-configNivel cargarNivel(const char* archivo, int nivel) {
+configNivel cargarNivel(const char* archivo, int nivel){
     configNivel config = {5, 10, 3};  // valores default
     FILE* f = fopen(archivo, "r");
     
-    if (f == NULL) {
+    if (f == NULL){
         printf("No se encontro el archivo \n"); //funcion que sirve para leer los valores del archivo y cargar el nivel
         return config;
     }
@@ -219,7 +248,7 @@ configNivel cargarNivel(const char* archivo, int nivel) {
     char buscarNivel[10];
     bool encontrado = false;
     sprintf(buscarNivel, "Nivel %d", nivel);
-    while (fgets(linea, sizeof(linea), f)) {
+    while (fgets(linea, sizeof(linea), f)){
         linea[strcspn(linea, "\n")] = 0; 
         linea[strcspn(linea, "\r")] = 0;
 
@@ -236,4 +265,38 @@ configNivel cargarNivel(const char* archivo, int nivel) {
     
     fclose(f);
     return config;
+}
+
+void dibujarJuego(Juego* partida){
+    for (int i = 0; i < partida->filas; i++) {
+        graficos(0, i); 
+        for (int j = 0; j < partida->columnas; j++){ //dibuja a lo nmigo
+            if (partida->horda[i][j].estaActivo){
+                printf("%c", partida->horda[i][j].simbolo);
+            } else{
+                printf(" ");
+            }
+        }
+    }
+    Proyectil* p = partida->listaProyectiles;
+    while (p != NULL) {
+        if (p->posY >= 0 && p->posY < 25){ //dibuja lo proyctil
+            graficos(p->posX, p->posY);
+            printf("|");
+        }
+        p = p->siguiente;
+    }
+    graficos(partida->navePos, 20);
+    printf("A");
+}
+
+void limpiarAnterior(Juego* partida, int naveAnterior){
+    graficos(naveAnterior, 20);
+    printf(" ");
+    Proyectil* p = partida->listaProyectiles; //borra poicion antrior d la nav
+    while (p != NULL) {
+        graficos(p->posX, p->posY + 1);
+        printf(" ");//borra lo proyctil
+        p = p->siguiente;
+    }
 }
