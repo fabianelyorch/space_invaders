@@ -84,9 +84,10 @@ int main() {
     if (GetAsyncKeyState(VK_ESCAPE) & 0x8000){
         juegoejecutado = false;//al dl jugo
     }
-    actualizarJuego(&miPartida);
     limpiarAnterior(&miPartida, naveAnterior);
+    actualizarJuego(&miPartida);
     dibujarJuego(&miPartida);
+    Sleep(60);
    }
    system("cls");
    printf("Game over");
@@ -208,6 +209,8 @@ void detectarColisiones(Juego* partida) {
             
             if (partida->horda[aux->posY][aux->posX].estaActivo) {
                 partida->horda[aux->posY][aux->posX].estaActivo = false;
+                graficos(aux->posX, aux->posY);//borra al nmigo con u poicion
+                printf(" ");
                 printf("Enemigo eliminado en: %d, %d\n", aux->posX, aux->posY);
                 borrarProyectil(&partida->listaProyectiles, aux);
                 huboImpacto = true;
@@ -293,10 +296,12 @@ void dibujarJuego(Juego* partida){
 void limpiarAnterior(Juego* partida, int naveAnterior){
     graficos(naveAnterior, 20);
     printf(" ");
-    Proyectil* p = partida->listaProyectiles; //borra poicion antrior d la nav
-    while (p != NULL) {
-        graficos(p->posX, p->posY + 1);
-        printf(" ");//borra lo proyctil
+    Proyectil* p = partida->listaProyectiles; 
+    while (p != NULL){
+        if (p->posY >= 0 && p->posY < 25){//borra lo proyctil con u poicion
+            graficos(p->posX, p->posY);
+            printf(" ");
+        }
         p = p->siguiente;
     }
 }
