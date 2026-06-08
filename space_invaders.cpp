@@ -4,6 +4,8 @@
 #include <windows.h>
 #include <string.h>
 
+#define FILAINICIO 10
+
 typedef struct {
     int puntos; //Puntos al eliminar un enemigo
     bool estaActivo; //Vida del enemigo
@@ -41,6 +43,7 @@ void dibujarJuego(Juego*);
 void limpiarAnterior(Juego*, int);
 
 int main() {
+    system("cls");
     CONSOLE_CURSOR_INFO info = {1, FALSE};
     SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);
 
@@ -60,7 +63,7 @@ int main() {
     Sleep(1000); 
     system("cls"); 
     for (int i = 0; i < miPartida.filas; i++) {
-     graficos(0, i); 
+     graficos(0, i+FILAINICIO); 
      for (int j = 0; j < miPartida.columnas; j++){ 
           if (miPartida.horda[i][j].estaActivo){
                printf("%c", miPartida.horda[i][j].simbolo);
@@ -221,27 +224,20 @@ void borrarProyectil(Proyectil** inicio, Proyectil* proyectilABorrar) {
 void detectarColisiones(Juego* partida){
     Proyectil* aux = partida->listaProyectiles;
     while (aux != NULL) {
-        Proyectil* proximo = aux->siguiente; 
+        Proyectil* proximo = aux->siguiente;
         bool huboImpacto = false;
-
-        if (aux->posY >= 0 && aux->posY < partida->filas &&
+        int filaLogica = aux->posY - FILAINICIO;
+        if (filaLogica >= 0 && filaLogica < partida->filas &&
             aux->posX >= 0 && aux->posX < partida->columnas){
-            
-            if (partida->horda[aux->posY][aux->posX].estaActivo){
-                partida->horda[aux->posY][aux->posX].estaActivo = false;
-                
+            if (partida->horda[filaLogica][aux->posX].estaActivo){
+                partida->horda[filaLogica][aux->posX].estaActivo = false;
                 graficos(aux->posX, aux->posY);
                 printf(" ");
-                
-                graficos(0, 24);
-                printf("¡Enemigo Eliminado! -> X: %2d, Y: %2d      ", aux->posX, aux->posY);
-                
                 borrarProyectil(&partida->listaProyectiles, aux);
                 huboImpacto = true;
             }
         }
-
-        if (!huboImpacto && aux->posY < 0) {
+        if (!huboImpacto && aux->posY < 0){
             borrarProyectil(&partida->listaProyectiles, aux);
         }
         aux = proximo;
